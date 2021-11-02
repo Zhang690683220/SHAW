@@ -1,6 +1,5 @@
-
 cmake_minimum_required(VERSION 3.13.0)
-project(shaw CXX)
+project(shaw Fortran C CXX)
 
 # guard against in-source builds
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
@@ -18,6 +17,10 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+find_package(KokkosStaging REQUIRED)
+find_package(MPI REQUIRED)
+
 #==================================
 find_package(KokkosKernels REQUIRED)
 include_directories(${YAMLCPP_INCLUDE_DIR} ${KOKKOS_INCLUDE_DIR})
@@ -26,6 +29,8 @@ link_libraries(dl yaml-cpp Kokkos::kokkoskernels) # Kokkos::BLAS Kokkos::LAPACK)
 
 set(exeName1 shawExe)
 add_executable(${exeName1} ${CMAKE_CURRENT_SOURCE_DIR}/src/kokkos/main_fom.cc)
+target_link_libraries(${exeName1} PUBLIC Kokkos::staging DataSpaces::DataSpaces)
+
 
 set(exeName2 extractStateFromSnaps)
 add_executable(${exeName2} ${CMAKE_CURRENT_SOURCE_DIR}/src/tools/main_extract_state_from_snaps.cc)
@@ -33,9 +38,7 @@ add_executable(${exeName2} ${CMAKE_CURRENT_SOURCE_DIR}/src/tools/main_extract_st
 # tell CMake to use CTest extension
 enable_testing()
 # add subdir where the unit tests are
-add_subdirectory(tests)
-
-
+# add_subdirectory(tests)
 
 
 #include_directories(${EIGEN_INCLUDE_DIR} ${YAMLCPP_INCLUDE_DIR} ${KOKKOS_INCLUDE_DIR})

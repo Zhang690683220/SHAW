@@ -6,6 +6,7 @@
 #include "./fom/run_fom.hpp"
 #include "./fom/fom_problem_rank_one_forcing.hpp"
 #include "./fom/fom_problem_rank_two_forcing.hpp"
+#include <Kokkos_StagingSpace.hpp>
 
 template<typename scalar_t>
 struct MyCustomMaterialModel final : public MaterialModelBase<scalar_t>
@@ -32,7 +33,9 @@ struct MyCustomMaterialModel final : public MaterialModelBase<scalar_t>
 
 int main(int argc, char *argv[])
 {
+  MPI_Init(&argc, &argv);
   Kokkos::initialize (argc, argv);
+  Kokkos::Staging::initialize();
   {
     using scalar_t    = kokkosapp::commonTypes::scalar_type;
     using parser_t    = kokkosapp::commonTypes::parser_type;
@@ -66,6 +69,8 @@ int main(int argc, char *argv[])
       problem.execute();
     }
   }
+  
+  Kokkos::Staging::finalize();
   Kokkos::finalize();
 
   return 0;

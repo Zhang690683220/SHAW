@@ -49,6 +49,8 @@
 #ifndef SHAXIPP_SEISMOGRAM_HPP_
 #define SHAXIPP_SEISMOGRAM_HPP_
 
+#include <Kokkos_StagingSpace.hpp>
+
 template <typename gids_t, typename state_t, typename dest_t>
 struct CopySeis
 {
@@ -221,6 +223,13 @@ public:
       if (MM_.extent(2) == 1){
 	const auto Mv = Kokkos::subview(MM_, Kokkos::ALL(), Kokkos::ALL(), 0);
 	writeToFile(fN2, Mv, useBinaryIO_, false); //false to not print size
+  std::cout << "debug MV.rank " << Mv.rank << std::endl;
+  using ViewStaging_t = Kokkos::View<scalar_t**, Kokkos::StagingSpace>;
+  ViewStaging_t v_S("StagingView", Mv.extent(0),Mv.extent(1));
+
+  // from host to staging
+  Kokkos::deep_copy(v_S, Mv);
+
       }
       else{
 	writeToFile(fN2, MM_, useBinaryIO_, false); //false to not print size
